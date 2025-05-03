@@ -1,264 +1,488 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Línea de Tiempo – Industria Informática en Argentina</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .controls { text-align: center; margin-bottom: 20px; }
-    .controls button { padding: 10px 20px; margin: 0 5px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }
-    #expandAll { background: #007bff; color: #fff; }
-    #collapseAll { background: #6c757d; color: #fff; }
-    .timeline { position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-    .timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #e0e0e0; }
-    details.card { position: relative; width: 45%; margin: 20px 0; }
-    details.card:nth-child(odd) { align-self: flex-start; }
-    details.card:nth-child(even) { align-self: flex-end; }
-    summary { list-style: none; display: flex; align-items: center; cursor: pointer; padding: 15px; border-radius: 6px; color: #fff; }
-    summary::-webkit-details-marker { display: none; }
-    summary::before { content: '▶'; display: inline-block; margin-right: 10px; transition: transform 0.3s; }
-    details[open] summary::before { transform: rotate(90deg); }
-    .summary-icon { width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0; }
-    .summary-text { display: flex; flex-direction: column; }
-    .summary-text .title { font-size: 16px; font-weight: bold; }
-    .summary-text .date { font-size: 12px; opacity: 0.8; }
-    .content { background: #fff; padding: 15px; border-radius: 0 0 6px 6px; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .illustration { text-align: center; margin-top: 15px; }
-    .illustration svg { max-width: 100%; height: auto; }
-    .caption { font-style: italic; text-align: center; margin-top: 10px; color: #555; }
-    .purple summary { background: #6f42c1; }
-    .blue summary   { background: #007bff; }
-    .green summary  { background: #28a745; }
-    .orange summary { background: #fd7e14; }
-    .gray summary   { background: #6c757d; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Línea de Tiempo - Industria Informática en Argentina</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .center-line {
+            position: absolute;
+            width: 4px;
+            background-color: #2c3e50;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+        
+        .timeline-item {
+            margin-bottom: 30px;
+            position: relative;
+            width: 100%;
+            padding-top: 5px;
+        }
+        
+        .timeline-content {
+            width: 45%;
+            padding: 0;
+            position: relative;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 55%;
+        }
+        
+        .period-dot {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 3px solid;
+            position: absolute;
+            top: 19px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        
+        details {
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        summary {
+            padding: 15px 20px 15px 30px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        
+        summary:hover {
+            filter: brightness(1.1);
+        }
+        
+        summary::marker, 
+        summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .summary-content {
+            flex-grow: 1;
+        }
+        
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
+        details[open] .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .details-content {
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        /* Colores para las etapas */
+        .purple {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .purple + .period-dot {
+            border-color: #9b59b6;
+        }
+        
+        .blue {
+            background-color: #3498db;
+            color: white;
+        }
+        .blue + .period-dot {
+            border-color: #3498db;
+        }
+        
+        .green {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .green + .period-dot {
+            border-color: #2ecc71;
+        }
+        
+        .orange {
+            background-color: #e67e22;
+            color: white;
+        }
+        .orange + .period-dot {
+            border-color: #e67e22;
+        }
+        
+        .red {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .red + .period-dot {
+            border-color: #e74c3c;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #1a252f;
+        }
+        
+        .svg-icon {
+            display: block;
+            margin: 10px auto;
+            max-width: 150px;
+            height: 120px;
+        }
+        
+        /* Ajuste para pantallas móviles */
+        @media (max-width: 768px) {
+            .center-line {
+                left: 30px;
+            }
+            
+            .timeline-content {
+                width: 85%;
+                left: 50px;
+            }
+            
+            .right, .left {
+                left: 50px;
+            }
+            
+            .period-dot {
+                left: 30px;
+            }
+            
+            summary {
+                padding-left: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>📅 Línea de Tiempo – Industria Informática en Argentina</h1>
-  <div class="controls">
-    <button id="expandAll">Expandir todo</button>
-    <button id="collapseAll">Colapsar todo</button>
-  </div>
-  <div class="timeline">
+    <h1>📅 Línea de Tiempo – Industria Informática en Argentina</h1>
+    
+    <div class="controls">
+        <button id="expand-all">Expandir todo</button>
+        <button id="collapse-all">Colapsar todo</button>
+    </div>
+    
+    <div class="timeline-container">
+        <div class="center-line"></div>
+        
+        <!-- Etapa 1: Años 70-90 -->
+        <div class="timeline-item">
+            <div class="timeline-content left">
+                <details>
+                    <summary class="purple">
+                        <div class="summary-content">🖥️ Años 70–90 (1970–1995): Orígenes y primeros pasos</div>
+                        <div class="expand-icon">↓</div>
+                    </summary>
+                    <div class="details-content">
+                        <svg class="svg-icon" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Monitor antiguo -->
+                            <rect x="10" y="5" width="80" height="50" rx="2" fill="#888" stroke="#222" stroke-width="2"/>
+                            <rect x="15" y="10" width="70" height="40" rx="1" fill="#333"/>
+                            <rect x="20" y="15" width="60" height="30" fill="#76ff03"/>
+                            <rect x="25" y="55" width="50" height="10" fill="#555"/>
+                            <rect x="45" y="55" width="10" height="20" fill="#555"/>
+                            <rect x="35" y="75" width="30" height="2" fill="#555"/>
+                            <!-- Texto en pantalla -->
+                            <text x="25" y="25" fill="#111" font-family="monospace" font-size="3">BASIC 1.0</text>
+                            <text x="25" y="30" fill="#111" font-family="monospace" font-size="3">READY.</text>
+                            <text x="25" y="35" fill="#111" font-family="monospace" font-size="3">10 PRINT "ARGENTINA"</text>
+                            <text x="25" y="40" fill="#111" font-family="monospace" font-size="3">20 GOTO 10</text>
+                            <text x="25" y="45" fill="#111" font-family="monospace" font-size="3">RUN_</text>
+                        </svg>
+                        
+                        <p>Durante esta etapa inicial:</p>
 
-    <!-- 70–90 -->
-    <details class="card purple">
-      <summary>
-        <svg class="summary-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="3" width="20" height="14" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>
-        <div class="summary-text">
-          <div class="title">🖥️ Años 70–90: Orígenes y primeros pasos</div>
-          <div class="date">1970–1995</div>
+                        <ul>
+                            <li><strong>1970s–1990s:</strong> Actividad informática incipiente y lenta en comparación con otros países.</li>
+                            <li><strong>1994 (8 de abril):</strong> Primera conexión a Internet en Argentina a través de Telintar (UBA).</li>
+                            <li><strong>1995:</strong> Inicio de la internet comercial en el país.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+            <div class="period-dot"></div>
         </div>
-      </summary>
-      <div class="content">
-        <p>1970s–1990s: Actividad informática incipiente y lenta en comparación con otros países.</p>
-        <p>1994 (8 de abril): Primera conexión a Internet en Argentina a través de Telintar (UBA).</p>
-        <p>1995: Inicio de la internet comercial en el país.</p>
-        <div class="illustration">
-          <!-- Monitor antiguo -->
-          <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-            <rect x="50" y="20" width="100" height="70" rx="5" fill="#888" />
-            <rect x="55" y="25" width="90" height="55" rx="2" fill="#222" />
-            <rect x="70" y="90" width="60" height="10" fill="#888" />
-            <rect x="85" y="100" width="30" height="5" fill="#888" />
-            <text x="100" y="50" font-family="monospace" font-size="8" fill="#0f0" text-anchor="middle">CONECTANDO...</text>
-            <text x="100" y="65" font-family="monospace" font-size="6" fill="#0f0" text-anchor="middle">ARGENTINA 1994</text>
-            <path d="M130 45 Q 140 35, 150 45" stroke="#36f" stroke-width="2" fill="none" />
-            <path d="M130 45 Q 145 25, 160 45" stroke="#36f" stroke-width="2" fill="none" />
-            <path d="M130 45 Q 150 15, 170 45" stroke="#36f" stroke-width="2" fill="none" />
-          </svg>
+        
+        <!-- Etapa 2: 2000-2010 -->
+        <div class="timeline-item">
+            <div class="timeline-content right">
+                <details>
+                    <summary class="blue">
+                        <div class="summary-content">💡 2000–2010: Expansión de Internet y primeras políticas públicas</div>
+                        <div class="expand-icon">↓</div>
+                    </summary>
+                    <div class="details-content">
+                        <svg class="svg-icon" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Computadora -->
+                            <rect x="15" y="15" width="40" height="30" rx="2" fill="#ddd" stroke="#222" stroke-width="1"/>
+                            <rect x="17" y="17" width="36" height="22" rx="1" fill="#333"/>
+                            <rect x="20" y="45" width="30" height="2" fill="#bbb"/>
+                            <rect x="30" y="45" width="10" height="15" fill="#bbb"/>
+                            <rect x="25" y="60" width="20" height="1" fill="#999"/>
+                            <!-- Documento Ley -->
+                            <rect x="65" y="10" width="25" height="35" fill="#f5f5f5" stroke="#222" stroke-width="1"/>
+                            <rect x="65" y="10" width="25" height="5" fill="#3498db"/>
+                            <line x1="70" y1="20" x2="85" y2="20" stroke="#333" stroke-width="0.5"/>
+                            <line x1="70" y1="25" x2="85" y2="25" stroke="#333" stroke-width="0.5"/>
+                            <line x1="70" y1="30" x2="85" y2="30" stroke="#333" stroke-width="0.5"/>
+                            <line x1="70" y1="35" x2="85" y2="35" stroke="#333" stroke-width="0.5"/>
+                            <text x="69" y="14" fill="white" font-family="Arial" font-size="3">LEY DE SOFTWARE</text>
+                            <!-- Conexión -->
+                            <path d="M55 30 Q 60 25, 65 30" fill="none" stroke="#2ecc71" stroke-width="1" stroke-dasharray="2,1"/>
+                        </svg>
+                        
+                        <p>Durante esta década de expansión:</p>
+                        
+                        <ul>
+                            <li><strong>2000-2010:</strong> Acceso a internet de banda ancha (ADSL y cable coaxial).</li>
+                            <li><strong>2000-2005:</strong> Surgimiento del comercio electrónico, las startups y empresas ".com".</li>
+                            <li><strong>2004:</strong> Sanción de la Ley 25.922 de Promoción de la Industria del Software.</li>
+                            <li><strong>2005-2010:</strong> Creación de miles de empleos y aumento de exportaciones de software.</li>
+                            <li><strong>2000-2010:</strong> Problemas persistentes: brecha digital y falta de inclusión tecnológica.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+            <div class="period-dot"></div>
         </div>
-        <p class="caption">Los primeros equipos y la conexión pionera marcaron el inicio digital.</p>
-      </div>
-    </details>
-
-    <!-- 2000–2010 -->
-    <details class="card blue">
-      <summary>
-        <svg class="summary-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="2" x2="12" y2="22" />
-          <line x1="2" y1="12" x2="22" y2="12" />
-        </svg>
-        <div class="summary-text">
-          <div class="title">💡 2000–2010: Expansión de Internet y primeras políticas públicas</div>
-          <div class="date">2000–2010</div>
+        
+        <!-- Etapa 3: 2010-2020 -->
+        <div class="timeline-item">
+            <div class="timeline-content left">
+                <details>
+                    <summary class="green">
+                        <div class="summary-content">📱 2010–2020: Virtualización, dispositivos móviles y redes sociales</div>
+                        <div class="expand-icon">↓</div>
+                    </summary>
+                    <div class="details-content">
+                        <svg class="svg-icon" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Smartphone -->
+                            <rect x="15" y="15" width="25" height="45" rx="3" fill="#333" stroke="#111" stroke-width="1"/>
+                            <rect x="17" y="20" width="21" height="35" rx="1" fill="#4fc3f7"/>
+                            <circle cx="27.5" cy="17.5" r="1" fill="#555"/>
+                            <circle cx="27.5" cy="57.5" r="2" fill="#555" stroke="#222" stroke-width="0.5"/>
+                            <!-- Íconos de apps -->
+                            <rect x="20" y="23" width="4" height="4" rx="1" fill="#f44336"/>
+                            <rect x="26" y="23" width="4" height="4" rx="1" fill="#2196f3"/>
+                            <rect x="32" y="23" width="4" height="4" rx="1" fill="#4caf50"/>
+                            <rect x="20" y="29" width="4" height="4" rx="1" fill="#ffeb3b"/>
+                            <rect x="26" y="29" width="4" height="4" rx="1" fill="#9c27b0"/>
+                            <rect x="32" y="29" width="4" height="4" rx="1" fill="#ff9800"/>
+                            <!-- Conexiones de red social -->
+                            <circle cx="65" cy="20" r="5" fill="#3f51b5"/>
+                            <circle cx="75" cy="30" r="5" fill="#e91e63"/>
+                            <circle cx="60" cy="40" r="5" fill="#009688"/>
+                            <circle cx="80" cy="45" r="5" fill="#ffc107"/>
+                            <circle cx="70" cy="55" r="5" fill="#607d8b"/>
+                            <!-- Conexiones -->
+                            <line x1="65" y1="20" x2="75" y2="30" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="75" y1="30" x2="60" y2="40" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="60" y1="40" x2="80" y2="45" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="80" y1="45" x2="70" y2="55" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="70" y1="55" x2="65" y2="20" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="40" y1="35" x2="60" y2="40" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="40" y1="35" x2="65" y2="20" stroke="#aaa" stroke-width="0.5"/>
+                        </svg>
+                        
+                        <p>Durante este período de crecimiento acelerado:</p>
+                        
+                        <ul>
+                            <li><strong>2010-2020:</strong> Popularización de smartphones, netbooks y smart TV.</li>
+                            <li><strong>2000-2010:</strong> Expansión masiva de internet: de 7% (2000) a más del 50% (2010).</li>
+                            <li><strong>2010-2015:</strong> Plan Conectar Igualdad: entrega de netbooks para estudiantes.</li>
+                            <li><strong>2010-2020:</strong> Auge de WhatsApp, Facebook, Instagram y juegos online.</li>
+                            <li><strong>2010-2020:</strong> Masificación del comercio electrónico: éxito de MercadoLibre.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+            <div class="period-dot"></div>
         </div>
-      </summary>
-      <div class="content">
-        <p>Acceso a internet de banda ancha (ADSL y cable coaxial).</p>
-        <p>Surgimiento del comercio electrónico, las startups y empresas “.com”.</p>
-        <p>2004: Sanción de la Ley 25.922 de Promoción de la Industria del Software.</p>
-        <p>Creación de miles de empleos y aumento de exportaciones de software.</p>
-        <p>Problemas persistentes: brecha digital y falta de inclusión tecnológica.</p>
-        <div class="illustration">
-          <!-- Computadora y documento de ley -->
-          <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-            <rect x="40" y="40" width="60" height="40" rx="2" fill="#d1d5db" />
-            <rect x="45" y="45" width="50" height="30" rx="1" fill="#1e40af" />
-            <rect x="60" y="80" width="20" height="5" fill="#d1d5db" />
-            <rect x="50" y="85" width="40" height="2" fill="#d1d5db" />
-            <rect x="120" y="30" width="40" height="50" fill="#f3f4f6" stroke="#7c3aed" stroke-width="2" />
-            <line x1="130" y1="40" x2="150" y2="40" stroke="#7c3aed" stroke-width="2" />
-            <line x1="130" y1="50" x2="150" y2="50" stroke="#7c3aed" stroke-width="2" />
-            <line x1="130" y1="60" x2="150" y2="60" stroke="#7c3aed" stroke-width="2" />
-            <text x="140" y="75" font-family="sans-serif" font-size="6" fill="#7c3aed" text-anchor="middle">LEY 25.922</text>
-            <path d="M100 60 L120 60" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4,2" />
-            <circle cx="110" cy="60" r="3" fill="#7c3aed" />
-          </svg>
+        
+        <!-- Etapa 4: 2020-2022 -->
+        <div class="timeline-item">
+            <div class="timeline-content right">
+                <details>
+                    <summary class="orange">
+                        <div class="summary-content">🦠 2020–2022: Pandemia y transformación digital</div>
+                        <div class="expand-icon">↓</div>
+                    </summary>
+                    <div class="details-content">
+                        <svg class="svg-icon" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Casa -->
+                            <polygon points="20,40 40,25 60,40" fill="#f5f5f5" stroke="#333" stroke-width="1"/>
+                            <rect x="25" y="40" width="30" height="25" fill="#f5f5f5" stroke="#333" stroke-width="1"/>
+                            <rect x="35" y="50" width="10" height="15" fill="#795548"/>
+                            <rect x="28" y="45" width="7" height="7" fill="#81d4fa"/>
+                            <rect x="45" y="45" width="7" height="7" fill="#81d4fa"/>
+                            <!-- Virus -->
+                            <circle cx="75" cy="25" r="7" fill="#ffcdd2" stroke="#e53935" stroke-width="1"/>
+                            <circle cx="75" cy="25" r="5" fill="rgba(229, 57, 53, 0.3)"/>
+                            <line x1="75" y1="15" x2="75" y2="18" stroke="#e53935" stroke-width="1"/>
+                            <line x1="75" y1="32" x2="75" y2="35" stroke="#e53935" stroke-width="1"/>
+                            <line x1="68" y1="18" x2="70" y2="20" stroke="#e53935" stroke-width="1"/>
+                            <line x1="80" y1="30" x2="82" y2="32" stroke="#e53935" stroke-width="1"/>
+                            <line x1="68" y1="32" x2="70" y2="30" stroke="#e53935" stroke-width="1"/>
+                            <line x1="80" y1="20" x2="82" y2="18" stroke="#e53935" stroke-width="1"/>
+                            <line x1="65" y1="25" x2="68" y2="25" stroke="#e53935" stroke-width="1"/>
+                            <line x1="82" y1="25" x2="85" y2="25" stroke="#e53935" stroke-width="1"/>
+                            <!-- Nube -->
+                            <path d="M60 60 Q 65 55, 70 60 Q 75 55, 80 60 Q 85 60, 85 65 Q 85 70, 80 70 L 60 70 Q 55 70, 55 65 Q 55 60, 60 60" fill="#e3f2fd" stroke="#64b5f6" stroke-width="1"/>
+                            <!-- Conexión casa-nube -->
+                            <path d="M45 45 Q 52 42, 60 60" fill="none" stroke="#64b5f6" stroke-width="1" stroke-dasharray="2,1"/>
+                        </svg>
+                        
+                        <p>La pandemia aceleró la transformación digital en todos los ámbitos:</p>
+                        
+                        <ul>
+                            <li><strong>2020:</strong> Cuarentena por COVID-19: virtualización obligatoria de trámites, trabajo y consumo.</li>
+                            <li><strong>2020-2022:</strong> Aumento del uso de IA, cloud computing y automatización.</li>
+                            <li><strong>2020–2021:</strong> Explosión del e-commerce y crecimiento del sector informático.</li>
+                            <li><strong>2020:</strong> Sanción de la Ley de Teletrabajo N.º 27.555.</li>
+                            <li><strong>2021:</strong> Ampliación de la Ley del Software → Ley de Economía del Conocimiento N.º 17.506.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+            <div class="period-dot"></div>
         </div>
-        <p class="caption">La infraestructura y la legislación impulsaron el boom del software y la conectividad.</p>
-      </div>
-    </details>
-
-    <!-- 2010–2020 -->
-    <details class="card green">
-      <summary>
-        <svg class="summary-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="7" width="20" height="14" />
-          <circle cx="8" cy="11" r="1" />
-          <circle cx="16" cy="11" r="1" />
-        </svg>
-        <div class="summary-text">
-          <div class="title">📱 2010–2020: Virtualización, dispositivos móviles y redes sociales</div>
-          <div class="date">2010–2020</div>
+        
+        <!-- Etapa 5: Actualidad -->
+        <div class="timeline-item">
+            <div class="timeline-content left">
+                <details>
+                    <summary class="red">
+                        <div class="summary-content">👩‍💻 Actualidad (2023–presente): Situación actual y desafíos</div>
+                        <div class="expand-icon">↓</div>
+                    </summary>
+                    <div class="details-content">
+                        <svg class="svg-icon" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Desarrollador/a -->
+                            <circle cx="25" cy="20" r="7" fill="#ffccbc"/>
+                            <rect x="18" y="27" width="14" height="18" rx="2" fill="#7986cb"/>
+                            <rect x="22" y="45" width="6" height="10" fill="#5c6bc0"/>
+                            <!-- Laptop -->
+                            <rect x="15" y="32" width="20" height="12" fill="#455a64"/>
+                            <rect x="15" y="40" width="20" height="4" fill="#263238"/>
+                            <!-- Tecnologías -->
+                            <rect x="40" y="15" width="10" height="10" rx="1" fill="#1565c0"/>
+                            <text x="43" y="22" fill="white" font-family="monospace" font-size="5">AI</text>
+                            <rect x="55" y="15" width="10" height="10" rx="1" fill="#f57f17"/>
+                            <text x="55.5" y="22" fill="white" font-family="monospace" font-size="5">BT</text>
+                            <rect x="70" y="15" width="10" height="10" rx="1" fill="#33691e"/>
+                            <text x="70.5" y="22" fill="white" font-family="monospace" font-size="4">IOT</text>
+                            <rect x="40" y="30" width="10" height="10" rx="1" fill="#ad1457"/>
+                            <text x="40.5" y="37" fill="white" font-family="monospace" font-size="4">ML</text>
+                            <rect x="55" y="30" width="10" height="10" rx="1" fill="#6a1b9a"/>
+                            <text x="55.5" y="37" fill="white" font-family="monospace" font-size="4">AR</text>
+                            <rect x="70" y="30" width="10" height="10" rx="1" fill="#4a148c"/>
+                            <text x="70.5" y="37" fill="white" font-family="monospace" font-size="4">VR</text>
+                            <!-- Conexiones -->
+                            <line x1="32" y1="30" x2="40" y2="20" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="32" y1="30" x2="55" y2="20" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="32" y1="30" x2="70" y2="20" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="32" y1="30" x2="40" y2="35" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="32" y1="30" x2="55" y2="35" stroke="#aaa" stroke-width="0.5"/>
+                            <line x1="32" y1="30" x2="70" y2="35" stroke="#aaa" stroke-width="0.5"/>
+                            <!-- Diagrama de crecimiento -->
+                            <line x1="50" y1="60" x2="80" y2="60" stroke="#333" stroke-width="1"/>
+                            <line x1="50" y1="60" x2="50" y2="45" stroke="#333" stroke-width="1"/>
+                            <path d="M50 55 L 55 53 L 60 54 L 65 50 L 70 45 L 75 43" fill="none" stroke="#4caf50" stroke-width="1.5"/>
+                        </svg>
+                        
+                        <p>El sector informático argentino en la actualidad:</p>
+                        
+                        <ul>
+                            <li><strong>2023 en adelante:</strong> Más de 145.000 empleados en informática en relación de dependencia.</li>
+                            <li><strong>2023 en adelante:</strong> Miles de freelancers, contractors y cooperativistas en informática.</li>
+                            <li><strong>2023 en adelante:</strong> Diversificación de roles (QA, PM, DevOps, especialistas en IA, etc.).</li>
+                            <li><strong>2023 en adelante:</strong> Necesidad continua de actualización y formación.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+            <div class="period-dot"></div>
         </div>
-      </summary>
-      <div class="content">
-        <p>Popularización de smartphones, netbooks y smart TV.</p>
-        <p>Expansión de internet: de 7% (2000) a más del 50% (2010).</p>
-        <p>Plan Conectar Igualdad: entrega de netbooks para estudiantes.</p>
-        <p>Auge de WhatsApp, Facebook, Instagram y juegos online.</p>
-        <p>Masificación del comercio electrónico: éxito de MercadoLibre.</p>
-        <div class="illustration">
-          <!-- Smartphone, laptop y redes sociales -->
-          <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-            <rect x="40" y="30" width="30" height="60" rx="3" fill="#333" />
-            <rect x="42" y="35" width="26" height="45" rx="1" fill="#0ea5e9" />
-            <circle cx="55" cy="85" r="3" fill="#f3f4f6" />
-            <rect x="85" y="50" width="50" height="30" rx="2" fill="#666" />
-            <polygon points="85,50 135,50 145,65 75,65" fill="#888" />
-            <rect x="90" y="55" width="40" height="20" rx="1" fill="#0ea5e9" />
-            <circle cx="160" cy="40" r="10" fill="#1877f2" /><text x="160" y="44" font-family="Arial" font-size="12" fill="white" text-anchor="middle">f</text>
-            <circle cx="160" cy="65" r="10" fill="#c13584" /><rect x="155" y="60" width="10" height="10" rx="3" stroke="white" stroke-width="1" fill="none" /><circle cx="160" cy="65" r="2" stroke="white" stroke-width="1" fill="none" /><circle cx="163" cy="62" r="1" fill="white" />
-            <circle cx="160" cy="90" r="10" fill="#25d366" /><path d="M156 90 L158 93 L164 87" stroke="white" stroke-width="1" fill="none" />
-            <path d="M70 50 C 90 30, 130 30, 150 40" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="3,2" />
-            <path d="M110 50 C 120 40, 140 50, 150 65" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="3,2" />
-            <path d="M70 70 C 90 100, 130 100, 150 90" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="3,2" />
-          </svg>
-        </div>
-        <p class="caption">La década 2010–2020 transformó la forma en que los argentinos se conectaban, comunicaban y consumían.</p>
-      </div>
-    </details>
-
-    <!-- 2020–2022 -->
-    <details class="card orange">
-      <summary>
-        <svg class="summary-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-12.3" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-        <div class="summary-text">
-          <div class="title">🦠 2020–2022: Pandemia y transformación digital</div>
-          <div class="date">2020–2022</div>
-        </div>
-      </summary>
-      <div class="content">
-        <p>Cuarentena por COVID-19: virtualización obligatoria de trámites, trabajo y consumo.</p>
-        <p>Aumento del uso de IA, cloud computing y automatización.</p>
-        <p>2020–2021: Explosión del e-commerce y crecimiento del sector informático.</p>
-        <p>2020: Sanción de la Ley de Teletrabajo N.º 27.555.</p>
-        <p>2021: Ampliación de la Ley del Software → Ley de Economía del Conocimiento N.º 17.506.</p>
-        <div class="illustration">
-          <!-- Casa, laptop, nube y virus -->
-          <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="40,60 100,30 160,60" fill="#10b981" stroke="#047857" stroke-width="1" />
-            <rect x="50" y="60" width="100" height="40" fill="#10b981" stroke="#047857" stroke-width="1" />
-            <rect x="80" y="70" width="40" height="30" fill="#d1fae5" stroke="#047857" stroke-width="1" />
-            <rect x="85" y="80" width="30" height="15" rx="2" fill="#333" />
-            <rect x="87" y="82" width="26" height="11" rx="1" fill="#047857" />
-            <circle cx="140" cy="40" r="10" fill="#d1fae5" stroke="#047857" stroke-width="1" />
-            <circle cx="150" cy="35" r="10" fill="#d1fae5" stroke="#047857" stroke-width="1" />
-            <circle cx="160" cy="40" r="10" fill="#d1fae5" stroke="#047857" stroke-width="1" />
-            <rect x="140" y="40" width="20" height="10" fill="#d1fae5" stroke="#047857" stroke-width="1" />
-            <path d="M100 85 C 110 70, 130 60, 150 45" stroke="#047857" stroke-width="1" stroke-dasharray="3,2" />
-            <circle cx="125" cy="65" r="3" fill="#047857" />
-            <circle cx="30" cy="30" r="8" fill="#ef4444" opacity="0.7" />
-            <line x1="22" y1="30" x2="38" y2="30" stroke="#fff" stroke-width="1" />
-            <line x1="30" y1="22" x2="30" y2="38" stroke="#fff" stroke-width="1" />
-            <line x1="25" y1="25" x2="35" y2="35" stroke="#fff" stroke-width="1" />
-            <line x1="35" y1="25" x2="25" y2="35" stroke="#fff" stroke-width="1" />
-          </svg>
-        </div>
-        <p class="caption">La pandemia aceleró la adopción de tecnologías digitales en todos los ámbitos.</p>
-      </div>
-    </details>
-
-    <!-- Actualidad -->
-    <details class="card gray">
-      <summary>
-        <svg class="summary-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 4h16v16H4z" />
-          <path d="M4 9h16" />
-          <path d="M9 4v16" />
-        </svg>
-        <div class="summary-text">
-          <div class="title">👩‍💻 Actualidad (2023 en adelante)</div>
-          <div class="date">2023–presente</div>
-        </div>
-      </summary>
-      <div class="content">
-        <p>Más de 145.000 empleados en informática en relación de dependencia.</p>
-        <p>Miles de freelancers, contractors y cooperativistas en informática.</p>
-        <p>Diversificación de roles (QA, PM, DevOps, especialistas en IA, etc.).</p>
-        <p>Necesidad continua de actualización y formación.</p>
-        <div class="illustration">
-          <!-- Personas y tecnologías -->
-          <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="40" r="10" fill="#f59e0b" />
-            <rect x="45" y="50" width="10" height="20" fill="#f59e0b" />
-            <line x1="45" y1="60" x2="35" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <line x1="55" y1="60" x2="65" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <text x="50" y="40" font-family="Arial" font-size="8" fill="white" text-anchor="middle">👩‍💻</text>
-            <circle cx="80" cy="40" r="10" fill="#f59e0b" />
-            <rect x="75" y="50" width="10" height="20" fill="#f59e0b" />
-            <line x1="75" y1="60" x2="65" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <line x1="85" y1="60" x2="95" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <text x="80" y="40" font-family="Arial" font-size="8" fill="white" text-anchor="middle">👨‍💻</text>
-            <circle cx="110" cy="40" r="10" fill="#f59e0b" />
-            <rect x="105" y="50" width="10" height="20" fill="#f59e0b" />
-            <line x1="105" y1="60" x2="95" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <line x1="115" y1="60" x2="125" y2="70" stroke="#f59e0b" stroke-width="3" />
-            <text x="110" y="40" font-family="Arial" font-size="8" fill="white" text-anchor="middle">🧑‍💻</text>
-            <rect x="140" y="30" width="40" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1" />
-            <text x="160" y="44" font-family="monospace" font-size="8" fill="#f59e0b" text-anchor="middle">IA</text>
-            <rect x="140" y="55" width="40" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1" />
-            <text x="160" y="69" font-family="monospace" font-size="8" fill="#f59e0b" text-anchor="middle">CLOUD</text>
-            <rect x="140" y="80" width="40" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1" />
-            <text x="160" y="94" font-family="monospace" font-size="8" fill="#f59e0b" text-anchor="middle">DEVOPS</text>
-            <line x1="120" y1="40" x2="140" y2="40" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" />
-            <line x1="120" y1="50" x2="140" y2="65" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" />
-            <line x1="120" y1="60" x2="140" y2="90" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" />
-          </svg>
-        </div>
-        <p class="caption">Diversidad de profesionales y tecnologías marcan la actualidad.</p>
-      </div>
-    </details>
-
-  </div>
-  <script>
-    document.getElementById('expandAll').addEventListener('click', () => {
-      document.querySelectorAll('details.card').forEach(d => d.open = true);
-    });
-    document.getElementById('collapseAll').addEventListener('click', () => {
-      document.querySelectorAll('details.card').forEach(d => d.open = false);
-    });
-  </script>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const expandAllBtn = document.getElementById('expand-all');
+            const collapseAllBtn = document.getElementById('collapse-all');
+            const allDetails = document.querySelectorAll('details');
+            
+            expandAllBtn.addEventListener('click', function() {
+                allDetails.forEach(function(detail) {
+                    detail.open = true;
+                });
+            });
+            
+            collapseAllBtn.addEventListener('click', function() {
+                allDetails.forEach(function(detail) {
+                    detail.open = false;
+                });
+            });
+        });
+    </script>
 </body>
 </html>
